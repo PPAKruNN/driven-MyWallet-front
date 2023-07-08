@@ -11,7 +11,9 @@ export { tokenContext };
 
 export default function App() {
 
-  const [token, setToken] = useState("");
+  const localToken = localStorage.getItem("token");
+  const [token, setToken] = useState(localToken)
+  console.log("LocalToken: " + localToken);
 
   return (
     <tokenContext.Provider value={[token, setToken]}>
