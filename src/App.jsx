@@ -5,6 +5,7 @@ import SignInPage from "./pages/SignInPage"
 import SignUpPage from "./pages/SignUpPage"
 import TransactionsPage from "./pages/TransactionPage"
 import { createContext, useState } from "react"
+import axios from "axios"
 
 const tokenContext = createContext();
 export { tokenContext };
@@ -13,6 +14,7 @@ export default function App() {
 
   const localToken = localStorage.getItem("token");
   const [token, setToken] = useState(localToken)
+  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   console.log("LocalToken: " + localToken);
 
   return (
