@@ -21,12 +21,13 @@ export default function EditRegisterPage() {
       .then( (response) => {
         const arr = response.data;
         const index = arr.findIndex( reg => reg.timestamp === parseInt(id) );
-        setValue( arr[index].value.toString().replace(".", ",") );
+        setValue(arr[index].value.toString());
         setDesc(arr[index].registerLabel);
         setDate(arr[index].date);
       })
 
       .catch( reason => {
+        if(!reason.response) return //console.log(reason);
         const status = reason.response.status;
         if(status === 422) alert("Formato invalido dos dados!");
         if(status === 401) {
