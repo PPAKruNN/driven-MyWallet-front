@@ -18,7 +18,7 @@ export default function TransactionsPage() {
   function formSubmit(e) {
     e.preventDefault(); 
 
-    axios.post(`${import.meta.env.VITE_API_URL}/nova-transacao/${tipo}`, {registerLabel: desc, value: parseInt(value)})
+    axios.post(`${import.meta.env.VITE_API_URL}/nova-transacao/${tipo}`, {registerLabel: desc, value: parseFloat(value.replace(",", "."))})
       .then(navigate("/home"))
       .catch( (reason) => {
         const status = reason.response.status;
@@ -34,7 +34,7 @@ export default function TransactionsPage() {
     <TransactionsContainer>
       <h1>Nova {tipo}</h1>
       <form onSubmit={formSubmit}>
-        <input value={value} onChange={e => setValue(e.target.value)} placeholder="Valor" type="number" inputMode="decimal"/>
+        <input value={value} onChange={e => setValue(e.target.value)} placeholder="Valor" type="text"/>
         <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Descrição" type="text"/>
         <button type="submit">Salvar {tipo} </button>
       </form>
