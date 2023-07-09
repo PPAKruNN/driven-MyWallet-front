@@ -1,50 +1,105 @@
 import styled from "styled-components"
 import { BiExit } from "react-icons/bi"
 import { AiOutlineMinusCircle, AiOutlinePlusCircle } from "react-icons/ai"
+import { useEffect, useState } from "react"
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc"
+dayjs.extend(utc);
+
 
 export default function HomePage() {
+  
+  const [userData, setUserData] = useState({});
+  const navigator = useNavigate();
+
+  useEffect( () => {
+   (async () => {
+      try {
+        const userProfile = await axios.get(`${import.meta.env.VITE_API_URL}/usuarioInfo`);
+        const registers = await axios.get(`${import.meta.env.VITE_API_URL}/registros`);   
+
+        const data = {...userProfile.data, registers: registers.data};
+        setUserData(data); 
+
+      } catch (reason) {
+        if(reason.response.status === 500) alert("Erro desconhecido no servidor, tente novamente mais tarde!");
+        if(reason.response.status === 401) alert("Token invalido ou expirado!")
+        if(reason.response.status === 404) alert("Token invalido ou expirado!")
+  
+        localStorage.removeItem("token");
+        navigator("/");  
+      } 
+    })() 
+  }, []);
+
+  function genRegisters() {
+
+    if(!userData.registers) return (<h1>Loading</h1>)
+    
+    if(userData.registers.length === 0) return (<h1>Não há registros de entrada ou saída</h1>)
+
+    return (
+    <TransactionsContainer>
+      <ul>
+        {genList()}
+      </ul>
+
+      <article>
+        <strong>Saldo</strong>
+        {calcSaldo()}
+      </article>
+    </TransactionsContainer>
+    )
+  }
+
+  function genList() {
+    if(!userData.registers) return;
+    return userData.registers.map( curr => 
+      (
+        <ListItemContainer id={curr.timestamp} key={curr.timestamp} >
+          <div>
+            <span>{dayjs.utc(curr.date).local().format("DD/MM")}</span>
+            <strong>{curr.registerLabel}</strong>
+          </div>
+          <Value color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString("PT")}</Value>
+        </ListItemContainer> 
+      )
+    )
+  } 
+
+  function calcSaldo(){
+    if(!userData.registers) return 0;
+    const saldo = userData.registers.reduce( (prev, curr) => {
+      let val = curr.type === "entrada" ? 1 : -1
+      return prev + (curr.value * val);
+    }, 0)
+    
+    return (<Value color={saldo > 1 ? "entrada" : "saida"}>{saldo}</Value>);
+  }
+
   return (
     <HomeContainer>
       <Header>
-        <h1>Olá, Fulano</h1>
+        <h1>Olá, {userData.name}</h1>
         <BiExit />
       </Header>
 
       <TransactionsContainer>
-        <ul>
-          <ListItemContainer>
-            <div>
-              <span>30/11</span>
-              <strong>Almoço mãe</strong>
-            </div>
-            <Value color={"negativo"}>120,00</Value>
-          </ListItemContainer>
-
-          <ListItemContainer>
-            <div>
-              <span>15/11</span>
-              <strong>Salário</strong>
-            </div>
-            <Value color={"positivo"}>3000,00</Value>
-          </ListItemContainer>
-        </ul>
-
-        <article>
-          <strong>Saldo</strong>
-          <Value color={"positivo"}>2880,00</Value>
-        </article>
+        {genRegisters()}
       </TransactionsContainer>
 
 
       <ButtonsContainer>
-        <button>
+        <Link to="/nova-transacao/entrada">
           <AiOutlinePlusCircle />
           <p>Nova <br /> entrada</p>
-        </button>
-        <button>
+        </Link>
+        <Link to="/nova-transacao/saida">
           <AiOutlineMinusCircle />
           <p>Nova <br />saída</p>
-        </button>
+        </Link>
       </ButtonsContainer>
 
     </HomeContainer>
@@ -74,12 +129,24 @@ const TransactionsContainer = styled.article`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+
+  h1 {
+    color: #868686;
+    font-size: 20px;
+    font-weight: 400;
+    text-align: center;
+    margin: auto 20%;
+  }
+
   article {
     display: flex;
     justify-content: space-between;   
+
     strong {
-      font-weight: 700;
-      text-transform: uppercase;
+      font-weight: 400;
+      font-size: 16px;
+      font-family: 'Raleway', sans-serif;
+      line-height: 19px;
     }
   }
 `
@@ -89,7 +156,7 @@ const ButtonsContainer = styled.section`
   display: flex;
   gap: 15px;
   
-  button {
+  a {
     width: 50%;
     height: 115px;
     font-size: 22px;
@@ -97,6 +164,9 @@ const ButtonsContainer = styled.section`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background-color: #A328D6;
+    padding: 10px;
+
     p {
       font-size: 18px;
     }
@@ -105,7 +175,7 @@ const ButtonsContainer = styled.section`
 const Value = styled.div`
   font-size: 16px;
   text-align: right;
-  color: ${(props) => (props.color === "positivo" ? "green" : "red")};
+  color: ${(props) => (props.color === "entrada" ? "green" : "red")};
 `
 const ListItemContainer = styled.li`
   display: flex;
