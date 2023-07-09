@@ -42,9 +42,9 @@ export default function HomePage() {
 
     return (
     <TransactionsContainer>
-      <ul>
+      <div>
         {genList()}
-      </ul>
+      </div>
 
       <article>
         <strong>Saldo</strong>
@@ -63,7 +63,11 @@ export default function HomePage() {
             <span>{dayjs.utc(curr.date).local().format("DD/MM")}</span>
             <strong>{curr.registerLabel}</strong>
           </div>
-          <Value color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString("PT")}</Value>
+          <span>
+            <Value color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString("PT")}</Value>
+            <button onClick={() => deleteRegister(curr.timestamp)}>x</button>
+          </span>
+
         </ListItemContainer> 
       )
     )
@@ -78,6 +82,23 @@ export default function HomePage() {
     
     return (<Value color={saldo > 1 ? "entrada" : "saida"}>{saldo}</Value>);
   }
+
+  function deleteRegister(timestamp) {
+    
+    const confirmRes = confirm("Voce tem certeza que quer deletetar esse registro?");
+    if(!confirmRes) return;
+
+    console.log({timestamp: timestamp})
+    axios.delete(`${import.meta.env.VITE_API_URL}/registros`, { headers: {timestamp: timestamp}})
+      .then(() => {
+        navigator(0)
+      })
+
+      .catch((reason) => {
+        const code = reason.response.status;
+        console.log(reason);
+      })
+  } 
 
   return (
     <HomeContainer>
@@ -130,6 +151,14 @@ const TransactionsContainer = styled.article`
   flex-direction: column;
   justify-content: space-between;
 
+  height: 50%;
+
+  & > div {
+    overflow-y: scroll;
+    margin-bottom: 15px;
+    padding: 15px 0px;
+  }
+  
   h1 {
     color: #868686;
     font-size: 20px;
@@ -184,8 +213,26 @@ const ListItemContainer = styled.li`
   margin-bottom: 8px;
   color: #000000;
   margin-right: 10px;
-  div span {
+
+  div span{
     color: #c6c6c6;
     margin-right: 10px;
+  }
+
+  span {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px;
+
+    button {
+      padding: 0px;
+      border: none;
+      background-color: transparent;
+      color: #000;
+
+      font-size: 16px;
+      color: #C6C6C6;
+    }
   }
 `
