@@ -64,10 +64,10 @@ export default function HomePage() {
         <ListItemContainer id={curr.timestamp} key={curr.timestamp} >
           <div>
             <span>{dayjs.utc(curr.date).local().format("DD/MM")}</span>
-            <strong data-test="registry-name">{curr.registerLabel}</strong>
+            <strong onClick={() => navigator(`/editar-registro/${curr.type}/${curr.timestamp}`)} data-test="registry-name">{curr.registerLabel}</strong>
           </div>
           <span>
-            <Value data-test="registry-amount" color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString('pt-BR').replace(".", ",")}</Value>
+            <Value data-test="registry-amount" color={curr.type}>{curr.value.toFixed(2).toLocaleString('pt-BR').replace(".", ",")}</Value>
             <button data-test="registry-delete" onClick={() => deleteRegister(curr.timestamp)}>x</button>
           </span>
         </ListItemContainer> 
@@ -90,7 +90,6 @@ export default function HomePage() {
     const confirmRes = confirm("Voce tem certeza que quer deletetar esse registro?");
     if(!confirmRes) return;
 
-    console.log({timestamp: timestamp})
     axios.delete(`${import.meta.env.VITE_API_URL}/registros`, { headers: {timestamp: timestamp}})
       .then(() => {
         navigator(0)

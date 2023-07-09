@@ -6,6 +6,7 @@ import SignUpPage from "./pages/SignUpPage"
 import TransactionsPage from "./pages/TransactionPage"
 import { createContext, useState } from "react"
 import axios from "axios"
+import EditRegisterPage from "./pages/EditRegisterPage"
 
 const tokenContext = createContext();
 export { tokenContext };
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/cadastro" element={<SignUpPage />} />
           <Route path="/home" element={<HomePage />} />
           <Route path="/nova-transacao/:tipo" element={<TransactionsPage />} />
+          <Route path="/editar-registro/:tipo/:id" element={<EditRegisterPage />} />
         </Routes>
       </BrowserRouter>
     </PagesContainer>
