@@ -1,18 +1,20 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UNSAFE_DataRouterStateContext, useNavigate, useParams } from "react-router-dom"
 import styled from "styled-components"
+import { tokenContext } from "../App";
 
 export default function TransactionsPage() {
 
   const [value, setValue] = useState("");
   const [desc, setDesc] = useState("");
-
+  const [token] = useContext(tokenContext);
   const { tipo } = useParams();
   const navigate = useNavigate();
   
   useEffect( () => {
     if(tipo !== "entrada" && tipo !== "saida")  navigate("/home");
+    if(!token) navigate("/")    
   }) 
 
   function formSubmit(e) {
@@ -34,9 +36,9 @@ export default function TransactionsPage() {
     <TransactionsContainer>
       <h1>Nova {tipo}</h1>
       <form onSubmit={formSubmit}>
-        <input value={value} onChange={e => setValue(e.target.value)} placeholder="Valor" type="text"/>
-        <input value={desc} onChange={e => setDesc(e.target.value)} placeholder="Descrição" type="text"/>
-        <button type="submit">Salvar {tipo} </button>
+        <input data-test="registry-amount-input" value={value} onChange={e => setValue(e.target.value)} placeholder="Valor" type="text"/>
+        <input data-test="registry-name-input" value={desc} onChange={e => setDesc(e.target.value)} placeholder="Descrição" type="text"/>
+        <button data-test="registry-save" type="submit">Salvar {tipo} </button>
       </form>
     </TransactionsContainer>
   )

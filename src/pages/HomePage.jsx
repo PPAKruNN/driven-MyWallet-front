@@ -1,21 +1,24 @@
 import styled from "styled-components"
 import { BiExit } from "react-icons/bi"
 import { AiOutlineMinusCircle, AiOutlinePlusCircle } from "react-icons/ai"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc"
+import { tokenContext } from "../App";
 dayjs.extend(utc);
-
 
 export default function HomePage() {
   
   const [userData, setUserData] = useState({});
   const navigator = useNavigate();
+  const [token] = useContext(tokenContext);
 
   useEffect( () => {
    (async () => {
+      if(!token) logout();
+
       try {
         const userProfile = await axios.get(`${import.meta.env.VITE_API_URL}/usuarioInfo`);
         const registers = await axios.get(`${import.meta.env.VITE_API_URL}/registros`);   
@@ -27,16 +30,15 @@ export default function HomePage() {
         if(reason.response.status === 500) alert("Erro desconhecido no servidor, tente novamente mais tarde!");
         if(reason.response.status === 401) alert("Token invalido ou expirado!")
         if(reason.response.status === 404) alert("Token invalido ou expirado!")
-  
-        localStorage.removeItem("token");
-        navigator("/");  
+ 
+        logout();
       } 
     })() 
   }, []);
 
   function genRegisters() {
 
-    if(!userData.registers) return (<h1>Loading</h1>)
+    if(!userData.registers) return (<h1>Loading...</h1>)
     
     if(userData.registers.length === 0) return (<h1>Não há registros de entrada ou saída</h1>)
 
@@ -61,13 +63,12 @@ export default function HomePage() {
         <ListItemContainer id={curr.timestamp} key={curr.timestamp} >
           <div>
             <span>{dayjs.utc(curr.date).local().format("DD/MM")}</span>
-            <strong>{curr.registerLabel}</strong>
+            <strong data-test="registry-name">{curr.registerLabel}</strong>
           </div>
           <span>
-            <Value color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString("PT")}</Value>
-            <button onClick={() => deleteRegister(curr.timestamp)}>x</button>
+            <Value data-test="registry-amount" color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString("PT")}</Value>
+            <button data-test="registry-delete" onClick={() => deleteRegister(curr.timestamp)}>x</button>
           </span>
-
         </ListItemContainer> 
       )
     )
@@ -80,7 +81,7 @@ export default function HomePage() {
       return prev + (curr.value * val);
     }, 0)
     
-    return (<Value color={saldo > 1 ? "entrada" : "saida"}>{saldo.toFixed(2)}</Value>);
+    return (<Value data-test="total-amount" color={saldo > 1 ? "entrada" : "saida"}>{Math.abs(saldo).toFixed(2)}</Value>);
   }
 
   function deleteRegister(timestamp) {
@@ -100,11 +101,16 @@ export default function HomePage() {
       })
   } 
 
+  function logout() {
+    localStorage.removeItem("token");
+    navigator("/");  
+  } 
+
   return (
     <HomeContainer>
       <Header>
-        <h1>Olá, {userData.name}</h1>
-        <BiExit />
+        <h1 data-test="user-name">Olá, {userData.name}</h1>
+        <BiExit data-test="logout" onClick={logout}/>
       </Header>
 
       <TransactionsContainer>
@@ -113,11 +119,11 @@ export default function HomePage() {
 
 
       <ButtonsContainer>
-        <Link to="/nova-transacao/entrada">
+        <Link data-test="new-income" to="/nova-transacao/entrada">
           <AiOutlinePlusCircle />
           <p>Nova <br /> entrada</p>
         </Link>
-        <Link to="/nova-transacao/saida">
+        <Link data-test="new-expense" to="/nova-transacao/saida">
           <AiOutlineMinusCircle />
           <p>Nova <br />saída</p>
         </Link>

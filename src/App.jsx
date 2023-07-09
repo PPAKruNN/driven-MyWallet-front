@@ -15,7 +15,6 @@ export default function App() {
   const localToken = localStorage.getItem("token");
   const [token, setToken] = useState(localToken)
   axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  console.log("LocalToken: " + localToken);
 
   return (
     <tokenContext.Provider value={[token, setToken]}>
