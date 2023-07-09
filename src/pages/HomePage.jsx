@@ -80,7 +80,7 @@ export default function HomePage() {
       return prev + (curr.value * val);
     }, 0)
     
-    return (<Value color={saldo > 1 ? "entrada" : "saida"}>{saldo}</Value>);
+    return (<Value color={saldo > 1 ? "entrada" : "saida"}>{saldo.toFixed(2)}</Value>);
   }
 
   function deleteRegister(timestamp) {
