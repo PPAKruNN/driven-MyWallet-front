@@ -66,7 +66,7 @@ export default function HomePage() {
             <strong data-test="registry-name">{curr.registerLabel}</strong>
           </div>
           <span>
-            <Value data-test="registry-amount" color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString("PT")}</Value>
+            <Value data-test="registry-amount" color={curr.type === "entrada" ? "entrada" : "saida" }>{curr.value.toFixed(2).toLocaleString('pt-BR').replace(".", ",")}</Value>
             <button data-test="registry-delete" onClick={() => deleteRegister(curr.timestamp)}>x</button>
           </span>
         </ListItemContainer> 
@@ -81,7 +81,7 @@ export default function HomePage() {
       return prev + (curr.value * val);
     }, 0)
     
-    return (<Value data-test="total-amount" color={saldo > 1 ? "entrada" : "saida"}>{Math.abs(saldo).toFixed(2)}</Value>);
+    return (<Value data-test="total-amount" color={saldo > 1 ? "entrada" : "saida"}>{Math.abs(saldo).toFixed(2).toLocaleString("pt-BR").replace(".", ",")}</Value>);
   }
 
   function deleteRegister(timestamp) {
