@@ -58,7 +58,8 @@ export default function HomePage() {
 
   function genList() {
     if(!userData.registers) return;
-    return userData.registers.map( curr => 
+    
+    return userData.registers.reverse().map( curr => 
       (
         <ListItemContainer id={curr.timestamp} key={curr.timestamp} >
           <div>
